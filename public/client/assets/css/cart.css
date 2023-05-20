@@ -1,0 +1,249 @@
+.brand-logo img {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 10px;
+  background-color: #ededed;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border-radius: 100%;
+}
+
+.pro-card {
+  background: #ededed;
+  box-shadow: 5px 5px 10px rgb(0 0 0 / 30%);
+  border-radius: 10px;
+  margin: 15px;
+  max-width: 30%;
+  padding: 0;
+  text-decoration: none
+}
+
+.title {
+  position: relative;
+  width: 100%;
+  padding: 15px;
+  height: 80px;
+}
+
+.image-holder {
+  height: 300px;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.total {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: none;
+  z-index: 30000;
+}
+
+.total .view-card-btn {
+  background-color: white;
+  border-radius: 30px;
+  color: #6859a3 !important;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+  font-size: 12px;
+
+}
+
+.total .total_result,
+.total .items_count {
+  line-height: 38px;
+}
+
+.product-image-full {
+  width: 100%;
+  height: 300px;
+}
+
+.product-title {
+  text-align: center;
+  padding: 10px
+}
+
+.product-description {
+  text-align: center;
+  background: bisque;
+  width: 200px;
+  margin: 0 auto;
+}
+
+.counter {
+  width: 113px;
+  margin: 0 auto;
+}
+
+@media only screen and (max-width: 600px) {
+  .pro-card {
+      max-width: 50%;
+  }
+
+  .image-holder {
+      height: 180px;
+  }
+}
+
+.text-light {
+  color: #f8f9fa!important;
+}
+
+.text-center {
+  text-align: center!important;
+}
+.col {
+  flex: 1 0 0%;
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 0.25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input-group-btn {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.row {
+  --bs-gutter-y: 0;
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: calc(var(--bs-gutter-y) * -1);
+  margin-right: calc(var(--bs-gutter-x) * -.5);
+  margin-left: calc(var(--bs-gutter-x) * -.5);
+}
+
+.input-group .btn {
+  position: relative;
+  z-index: 2;
+}
+
+.btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.input-group>.form-control {
+  position: relative;
+  flex: 1 1 auto;
+  width: 1%;
+  min-width: 0;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0.25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  padding-top: 10px;
+}
+
+.btn-group-sm>.btn, .btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: .875rem;
+  border-radius: 0.2rem;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.col-12 {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.cart-item-list {
+  max-width: 450px; 
+  margin: 0 auto; 
+  background-color: white; 
+  color: black; 
+  padding: 5px 15px; 
+  border-radius: 13px; 
+  display: none;
+  position: relative;
+}
+
+.item-line {
+  max-width: 450px; 
+  margin: 0 auto; 
+  background-color: #6962FF; 
+  padding: 5px; 
+  border-radius: 13px;
+  align-items: center;
+}
+
+.total-cart-flame {
+  text-align: center;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.cart_bar {
+  line-height: 17px;
+  height: 38px;
+}
+
+.close_icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 15px;
+  position: absolute;
+  right: 0;
+  top: 10px;
+}
+
+.dflex_center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
