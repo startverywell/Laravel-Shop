@@ -18,6 +18,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use MarkSitko\LaravelUnsplash\Facades\Unsplash;
+use GuzzleHttp\Client;
 
 class SurveyController extends Controller
 {
@@ -75,7 +76,18 @@ class SurveyController extends Controller
                             ->term('nature')
                             ->count(10)
                             ->toJson();
-        // $pixa_photo = $this->pixabay->getImage('nature');
+        $client = new Client();
+        // $response = $client->request('GET', 'https://pixabay.com/api/', [
+        //     'query' => [
+        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
+        //         'q' => 'nature',
+        //         'per_page' => 10
+        //     ],
+        // ]);
+
+        // $body = $response->getBody();
+        // $pixa_photo = $body->getContents();
+        $pixa_photo = [];
         return view('admin/survey/form',
             [
                 'survey' => $survey,
@@ -85,7 +97,7 @@ class SurveyController extends Controller
                 'questions' => $question_list,
                 'answers' => $answer_list,
                 'photo' => $photo,
-                // 'pixa_photo' => $pixa_phot
+                'pixa_photo' => $pixa_photo
             ]);
     }
 
@@ -366,7 +378,7 @@ class SurveyController extends Controller
         }
 
         // QRコードの処理
-        // QrCode::size(100)->generate('https://styleboard.xbiz.jp/client/?id=' . $survey->token, $img_qrcode_path . 'qrcode.svg');
+        QrCode::size(100)->generate('https://styleboard.xbiz.jp/client/?id=' . $survey->token, $img_qrcode_path . 'qrcode.svg');
 
         if(count($question_ids) > 0) {
             Question::where('survey_id',$survey->id)->whereNotIn('id', $question_ids)->delete();
