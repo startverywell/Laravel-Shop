@@ -54,12 +54,31 @@ class SurveyController extends Controller
         $statuses = Status::all();
         $question_types = QuestionType::all();
         $answer_types = AnswerType::all();
+        $photo = Unsplash::randomPhoto()
+                            // ->orientation('portrait')
+                            ->term('nature')
+                            ->count(30)
+                            ->toJson();
+        // $client = new Client();
+        // $response = $client->request('GET', 'https://pixabay.com/api/', [
+        //     'query' => [
+        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
+        //         'q' => 'nature',
+        //         'per_page' => 30
+        //     ],
+        // ]);
+
+        // $body = $response->getBody();
+        // $pixa_photo = json_decode($body->getContents());
         return view('admin/survey/form',
             [
                 'survey' => $survey,
                 'statuses' =>$statuses,
                 'question_types' =>$question_types,
-                'answer_types' =>$answer_types
+                'answer_types' =>$answer_types,
+                'photo' => $photo,
+                'pixa_photo' => []
+                // 'pixa_photo' => $pixa_photo->hits
             ]);
     }
 
@@ -74,20 +93,19 @@ class SurveyController extends Controller
         $photo = Unsplash::randomPhoto()
                             // ->orientation('portrait')
                             ->term('nature')
-                            ->count(10)
+                            ->count(30)
                             ->toJson();
-        $client = new Client();
+        // $client = new Client();
         // $response = $client->request('GET', 'https://pixabay.com/api/', [
         //     'query' => [
         //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
         //         'q' => 'nature',
-        //         'per_page' => 10
+        //         'per_page' => 30
         //     ],
         // ]);
 
         // $body = $response->getBody();
-        // $pixa_photo = $body->getContents();
-        $pixa_photo = [];
+        // $pixa_photo = json_decode($body->getContents());
         return view('admin/survey/form',
             [
                 'survey' => $survey,
@@ -97,20 +115,64 @@ class SurveyController extends Controller
                 'questions' => $question_list,
                 'answers' => $answer_list,
                 'photo' => $photo,
-                'pixa_photo' => $pixa_photo
+                'pixa_photo' => []
+                // 'pixa_photo' => $pixa_photo->hits
             ]);
     }
 
     public function imageSearch(Request $request)
     {
         $photo = Unsplash::randomPhoto()
-                ->term($request->get('search_key'))
+                ->term($request->post('search_key'))
                 // ->color('black_and_white')
-                ->count(15)
-                ->toJson();     
+                ->count(30)
+                ->toJson();    
+        // $client = new Client();
+        // $response = $client->request('GET', 'https://pixabay.com/api/', [
+        //     'query' => [
+        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
+        //         'q' => $request->post('search_key'),
+        //         'per_page' => 30
+        //     ],
+        // ]);
+
+        // $body = $response->getBody();
+        // $pixa_photo = json_decode($body->getContents()); 
         return view('admin/survey/imageview',
             [
-                'photo' => $photo
+                'photo' => $photo,
+                'pixa_photo' => []
+                // 'pixa_photo' => $pixa_photo->hits
+            ]);
+    }
+
+    public function imageSearchAll(Request $request)
+    {
+        $type = $request->post('type');
+        $photo = Unsplash::randomPhoto()
+                ->term($request->post('search_key'))
+                // ->color('black_and_white')
+                ->count(30)
+                ->toJson();    
+        // $client = new Client();
+        // $response = $client->request('GET', 'https://pixabay.com/api/', [
+        //     'query' => [
+        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
+        //         'q' => $request->post('search_key'),
+        //         'per_page' => 30
+        //     ],
+        // ]);
+
+        // $body = $response->getBody();
+        // $pixa_photo = json_decode($body->getContents()); 
+        if($type == 'all') $view = 'admin/survey/searchview';
+        else if($type == 'unsplash') $view = 'admin/survey/unsplash';
+        else if($type == 'pixabay') $view = 'admin/survey/pixabay';
+        return view($view,
+            [
+                'photo' => $photo,
+                'pixa_photo' => []
+                // 'pixa_photo' => $pixa_photo->hits
             ]);
     }
 
@@ -325,6 +387,17 @@ class SurveyController extends Controller
                         if (isset($question_files[$key]['answers'][$a_key]) and isset($question_files[$key]['answers'][$a_key]['sub_images'])) {
                             $answer_sub_files = $question_files[$key]['answers'][$a_key]['sub_images'];
                             $answer_sub_files_unsulash = $answerItem['sub_images'];
+                            foreach ($answer_sub_files_unsulash as $sub_file_key => $answer_sub_file){
+                                $answerImageModel = new AnswerImage();
+                                $answerImageModel->answer_id = $answerModel->id;
+                                $answerImageModel->sub_file_url = '_';
+                                // unsplash img load
+                                if(strpos($answer_sub_file,'images.unsplash.com/') && !isset($answer_sub_files[$sub_file_key])){
+                                    $answerImageModel->sub_file_url = $answer_sub_file;
+                                    $answerImageModel->save();
+                                } else
+                                    continue;
+                            }
                             foreach ($answer_sub_files as $sub_file_key => $answer_sub_file){
                                 $answerImageModel = new AnswerImage();
                                 $answerImageModel->answer_id = $answerModel->id;
@@ -347,6 +420,19 @@ class SurveyController extends Controller
                                         $answerImageModel->save();
                                     }
                                 }
+                            }
+                        } elseif (isset($answerItem['sub_images'])){
+                            $answer_sub_files_unsulash = $answerItem['sub_images'];
+                            foreach ($answer_sub_files_unsulash as $sub_file_key => $answer_sub_file){
+                                $answerImageModel = new AnswerImage();
+                                $answerImageModel->answer_id = $answerModel->id;
+                                $answerImageModel->sub_file_url = '_';
+                                // unsplash img load
+                                if(strpos($answer_sub_file,'images.unsplash.com/')){
+                                    $answerImageModel->sub_file_url = $answer_sub_file;
+                                    $answerImageModel->save();
+                                } else
+                                    continue;
                             }
                         }
                         $answer_ids[] = $answerModel->id;

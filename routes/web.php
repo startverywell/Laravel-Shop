@@ -48,6 +48,8 @@ Route::get('/admin/survey/add', [SurveyController::class,'add'])->name('admin.su
 Route::get('/admin/survey/delete/{id}', [SurveyController::class,'delete'])->name('admin.survey.delete');
 Route::post('/admin/survey/save', [SurveyController::class,'save'])->name('admin.survey.save');
 Route::post('/admin/survey/imagesearch', [SurveyController::class,'imageSearch'])->name('admin.survey.imagesearch');
+Route::post('/admin/survey/imagesearchall', [SurveyController::class,'imageSearchAll'])->name('admin.survey.imagesearchall');
+
 Route::get('/admin/survey/edit/{id}', [SurveyController::class,'edit'])->name('admin.survey.edit');
 Route::post('/admin/survey/widget', [SurveyController::class,'saveWidget'])->name('admin.survey.save_widget');
 

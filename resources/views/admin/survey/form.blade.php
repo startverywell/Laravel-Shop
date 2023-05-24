@@ -1,15 +1,19 @@
 @extends('layouts.admin', ['title' => 'アンケート'])
 @section('js')
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+    <script src="{{ asset('js/jquery.sidebar.js') }}"></script>
     <script src="{{ asset('js/survey.js') }}"></script>
 @endsection
 <?php
 echo '<script>';
 echo 'var GradientList = ' . json_encode(GRADIENT_COLOR) . ';';
 echo 'var image_search_url = "' . route("admin.survey.imagesearch") . '";';
+echo 'var image_search_all = "' . route("admin.survey.imagesearchall") . '";';
 echo 'var csrfToken = "'.csrf_token().'";';
 echo '</script>';
 ?>
 @section('main-content')
+
     <div class="row">
         <div class="col-8">
             <form class="" method="post" id="form" action="{{ route('admin.survey.save') }}" enctype="multipart/form-data">
@@ -314,7 +318,7 @@ echo '</script>';
                                                                     });
                                                                 </script>
                                                                 @endif
-                                                                <div class="d-flex" style="flex-direction: column; flex-flow: row wrap; height: 220px;" id="{{$q_index}}_{{$a_index}}_image_container">
+                                                                <div class="d-flex" style="flex-direction: column; flex-flow: row wrap; height: 220px;" id="{{$q_index}}_{{$a_index}}_image_container" ondrop="imgAddDrop(event)" ondragover="imgAddAllowDrop(event)">
                                                                     @foreach($answer->answer_images as $answer_image)
                                                                     <div style="position: relative;" id="{{ 'image_url_' . $answer_image->id }}" >
                                                                         @if (!strpos($answer_image->sub_file_url,'images.unsplash.com/'))
@@ -325,10 +329,6 @@ echo '</script>';
                                                                         <button class="btn" style="position: absolute; right: -8px; top: -8px; padding:0" onclick="removeSubAnswerImage(event, {{$answer_image->id}})">
                                                                             <img src="{{ asset('/img/remove.png') }}" style="width: 15px; height: 15px;"></img>
                                                                         </button>
-                                                                        <input name="${image_input_name}" type="hidden" 
-                                                                            id="{{ 'image_url_content_' . $answer_image->id.'_hidden' }}"
-                                                                            value = "{{$answer_image->sub_file_url}}"
-                                                                        />
                                                                     </div>
                                                                     <script>
                                                                         getMeta("{{ asset($answer_image->sub_file_url) }}", (err, img) => {
@@ -402,9 +402,12 @@ echo '</script>';
                     <div class="card-right">
                         <div class="qr-code-row" style="display: flex; width: 100%;">
                             <div class="qr-code-img">
-                                
+                                <!-- QRCode Generation -->
+                                @isset($survey['token'])
+                                    {{ QrCode::size(100)->generate('https://formstylee.com/client/?id=' . $survey['token']) }}
+                                @else
                                     <img src="{{ asset('img/qr_code.png') }}">
-                               
+                                @endisset                       
                             </div>
                             <div class="qr-code-setting" style="width: calc(100% - 120px); padding: 0 0 0 20px;">
                                 <div class="qr-code-setting-head mb-1" style="display: flex; align-items: center;">
@@ -608,50 +611,58 @@ var plus_image_path = "{{ asset('/img/plus.png') }}";
                 </div>
             </div>
         </div>
-        <div class="col-md-2 splash-container">
-            <!-- <form method="POST" action="{{ route('admin.survey.save') }}"> -->
-                <div class="input-group mt-2">
-                    @csrf
-                    <input type="text" class="form-control" placeholder="Search"  id="image_search_text">
-                    <button class="btn btn-success" id="image_search_button">Search</button>
-                    <!-- <button class="btn btn-success" id="collasp">Hide</button> -->
-                </div>  
-            <!-- </form> -->
-            <div class="tab">
-                <button class="tablinks" onclick="openCity(event, 'All')" id="image_select_all">All</button>
-                <button class="tablinks" onclick="openCity(event, 'Unsplash')">Unsplash</button>
-                <button class="tablinks" onclick="openCity(event, 'Pixabay')">Pixabay</button>
+        <div id="mySidenav" class="sidenav">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <div class="row splash-container1">
+                <!-- <form method="POST" action="{{ route('admin.survey.save') }}"> -->
+                    <div class="input-group mt-2">
+                        @csrf
+                        <input type="text" class="form-control" placeholder="Search"  id="image_search_text">
+                        <button class="btn btn-success" id="image_search_button">Search</button>
+                        <!-- <button class="btn btn-success" id="collasp">Hide</button> -->
+                    </div>  
+                <!-- </form> -->
+                <div class="tab">
+                    <button class="tablinks" onclick="openCity(event, 'All')" id="image_select_all">All</button>
+                    <button class="tablinks" onclick="openCity(event, 'Unsplash')">Unsplash</button>
+                    <button class="tablinks" onclick="openCity(event, 'Pixabay')">Pixabay</button>
+                </div>
+                <div id="search_result">
+                    <div id="All" class="tabcontent active">
+                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_all">
+                            <div class="images-wrapper" id="card_image_view_all_view">
+                                @foreach ($photo as $key => $value)
+                                    <img loading="lazy" src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                @endforeach
+                                @foreach ($pixa_photo as $key => $value)
+                                    <img loading="lazy" src="{{$value->imageURL}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    <div id="Unsplash" class="tabcontent">
+                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_unsplash">
+                            <div class="images-wrapper" id="card_image_view_unsplash_view">
+                                @foreach ($photo as $key => $value)
+                                    <img loading="lazy" src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                @endforeach
+                            </div>
+                        </div> 
+                    </div>
+                    <div id="Pixabay" class="tabcontent">
+                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_pixabay">
+                            <div class="images-wrapper" id="card_image_view_pixabay_view">
+                                @foreach ($pixa_photo as $key => $value)
+                                    <img loading="lazy" src="{{$value->imageURL}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
-            <div id="search_result">
-                <div id="All" class="tabcontent active">
-                    <div class="card example-1 square scrollbar-dusty-grass square thin">
-                        <div id="images-wrapper">
-                            @foreach ($photo as $key => $value)
-                                <img src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="p-1 select_image"  draggable="true" ondragstart="imgDrag(event)">
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-                <div id="Unsplash" class="tabcontent">
-                    <div class="card example-1 square scrollbar-dusty-grass square thin">
-                        <div id="images-wrapper">
-                            @foreach ($photo as $key => $value)
-                                <img src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="p-1 select_image"  draggable="true" ondragstart="imgDrag(event)">
-                            @endforeach
-                        </div>
-                    </div> 
-                </div>
-                <div id="Pixabay" class="tabcontent">
-                    <div class="card example-1 square scrollbar-dusty-grass square thin">
-                        <div id="images-wrapper">
-                            @foreach ($pixa_photo as $key => $value)
-                                <img src="{{$value->imageURL}}" class="p-1 select_image"  draggable="true" ondragstart="imgDrag(event)">
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-            </div>   
         </div>
+        
     </div>
     @include('admin/survey/modal', ['title' => '質問追加', 'modal_id' => 'AddQuestion', 'items' => $question_types])
     @include('admin/survey/modal', ['title' => '回答追加', 'modal_id' => 'AddAnswer', 'items' => $answer_types])

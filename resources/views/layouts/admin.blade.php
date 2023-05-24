@@ -55,6 +55,9 @@
                     <a class="nav-link" href="{{ route('admin.users') }}">
                         <i class="fas fa-user-friends"></i>
                         <span>{{ __('ユーザ管理') }}</span></a>
+                        @if(strpos(url()->current(), 'survey/edit') || strpos(url()->current(), 'survey/add'))
+                            <a class="nav-link" id="image_nav_button" onclick="openNav()" >コンテンツ管理</a>
+                        @endif
                 </li>
             @endif
         @endif

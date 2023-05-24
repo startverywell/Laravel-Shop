@@ -213,7 +213,7 @@ var a_index = 0;
                             <div class="card-img-top mb-1" style="position: relative;">
                                 <img class="card-img-top mb-1" style="position: relative; width:auto; max-width:100%; height:100%;" src="" id="${aq_index}_${a_index}_main_img" ondrop="imgDrop(event)" ondragover="imgAllowDrop(event)"/>
                             </div>
-                            <div class="d-flex" style="flex-direction: column; flex-flow: row wrap; height: 220px;" id="${aq_index}_${a_index}_image_container">
+                            <div class="d-flex" style="flex-direction: column; flex-flow: row wrap; height: 220px;" id="${aq_index}_${a_index}_image_container"  ondrop="imgAddDrop(event)" ondragover="imgAddAllowDrop(event)">
                             </div>
                         </div>
                         <input type="hidden" value="${selectedType}" name="questions[q_${aq_index}][answers][a_${a_index}][type]">
@@ -348,6 +348,10 @@ function handleMainImgChange(event, q_index, a_index) {
 function imgAllowDrop(ev) {
     ev.preventDefault();
 }
+
+function imgAddAllowDrop(ev) {
+    ev.preventDefault();
+}
   
 function imgDrag(ev) {
     ev.dataTransfer.setData("drag_src", ev.target.src);
@@ -361,3 +365,4 @@ function imgDrop(ev) {
     ev.target.src = data;
     $(file_tag_id).val(data);
 }
+
