@@ -201,7 +201,7 @@ var a_index = 0;
                 <div class="answer card mr-2 mb-2" id="_answer_${a_index}">
                     <div id="_answer_images_${a_index}"></div>
                     <input id="_answer_images_${a_index}_count" value="0" hidden>
-                    <div class="card-header d-flex justify-content-between p-2">
+                    <div class="card-header d-flex justify-content-between p-2"  ondrop="addButtonDrop(event,${aq_index}, ${a_index})" ondragover="imgAddAllowDrop(event)">
                         <span>回答</span>
                         <div class="btn" style="padding: 0" onclick="addSubAnswerImage(${aq_index}, ${a_index})">
                             <img src="${plus_image_path}" style="width: 25px; height: 25px;"/>

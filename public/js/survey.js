@@ -87,74 +87,6 @@ $(`textarea[name="widget_text"], #chk_widget_show, input[name="widget_text_color
 $(`input[name="widget_position"]`).on("click", widgetPreview);
 
 var data_key = false;
-$('#card_image_view_all').scroll(function(){
-    let elementHeight = $('#card_image_view_all_view').outerHeight();
-    let pos = ($('#card_image_view_all').scrollTop() / elementHeight) * 100;
-    if (pos > 40 && !data_key) {
-        data_key = true;
-        console.log(pos);
-        let search_key = $('#image_search_text').val();
-        $.ajax({
-            type:'POST',
-            url:image_search_all, // Replace with your own URL
-            data:{
-                search_key:search_key,
-                type:'all',
-                '_token': csrfToken 
-            }, // Replace with your own data
-            success:function(res){
-                $('#card_image_view_all_view').append(res);
-                data_key = false;
-            }
-        });
-    }
-});
-
-$('#card_image_view_unsplash').scroll(function(){
-    let elementHeight = $('#card_image_view_unsplash_view').outerHeight();
-    let pos = ($('#card_image_view_unsplash').scrollTop() / elementHeight) * 100;
-    if (pos > 40 && !data_key) {
-        data_key = true;
-        console.log(pos);
-        let search_key = $('#image_search_text').val();
-        $.ajax({
-            type:'POST',
-            url:image_search_all, // Replace with your own URL
-            data:{
-                search_key:search_key,
-                type:'unsplash',
-                '_token': csrfToken 
-            }, // Replace with your own data
-            success:function(res){
-                $('#card_image_view_unsplash_view').append(res);
-                data_key = false;
-            }
-        });
-    }
-});
-
-$('#card_image_view_pixabay').scroll(function(){
-    let elementHeight = $('#card_image_view_pixabay_view').outerHeight();
-    let pos = ($('#card_image_view_pixabay').scrollTop() / elementHeight) * 100;
-    if (pos > 40 && !data_key) {
-        data_key = true;
-        console.log(pos);
-        let search_key = $('#image_search_text').val();
-        $.ajax({
-            type:'POST',
-            url:image_search_all, // Replace with your own URL
-            data:{
-                search_key:search_key,
-                type:'pixabay',
-                '_token': csrfToken 
-            }, // Replace with your own data
-            success:function(res){
-                $('#card_image_view_unsplash_view').append(res);
-                data_key = false;
-            }
-        });
-    }
-});
 
 function hexToRgbA(hex){
     var c;
@@ -430,7 +362,7 @@ function openCity(evt, cityName) {
 }
 
 function openNav() {
-    document.getElementById("mySidenav").style.width = "12%";
+    document.getElementById("mySidenav").style.width = "14rem";
 }
   
 function closeNav() {
@@ -460,6 +392,66 @@ function imgAddDrop(ev) {
     var image_input_id = `sub_images_${q_index}_${a_index}_${sub_images_index}`;
     ev.preventDefault();
     var data = ev.dataTransfer.getData("drag_src");
+
+    document.getElementById('_answer_images_' + a_index).insertAdjacentHTML('beforeend', `
+        <input hidden name="${image_input_name}" type="file" 
+            data-container="${q_index}_${a_index}_image_container" 
+            data-a_index="${a_index}"
+            id="${image_input_id}"
+            value="${data}"
+        />
+        <input name=${image_input_name} type="hidden" 
+            id="${image_input_id}_hidden"
+            value="${data}"
+        />
+    `);
+    var answer_card = '#_answer_'+a_index;
+    var image_count = Number($(`#_answer_images_${a_index}_count`).val()) + 1;
+    $(`#_answer_images_${a_index}_count`).val(image_count);
+    $(answer_card).css('width', String(240 + 110 * Math.ceil(image_count/2)) + 'px');
+    document.getElementById(div_id).innerHTML += `
+        <div style="position: relative;" id="image_url_${sub_images_index}_created" >
+            <img class="card-img-top mb-1" style="position: relative; height: 106px; width: 106px; margin: 2px; border-radius: 5px;" src="${data}" ondrop="imgDrop(event)" ondragover="imgAllowDrop(event)" id="${image_input_id}">
+            <button class="btn" style="position: absolute; right: -8px; top: -8px; padding: 0;" onclick="removeCreatedSubAnswerImage(event, ${sub_images_index}, '${div_id}')">
+                <img src="${remove_image_path}" style="width: 15px; height: 15px;"></img>
+            </button>
+        </div>`;
+    sub_images_index ++;
+}
+
+function imageScroll(type)
+{
+    var scrollHeight = $(`#card_image_view_${type}_view`).height();
+    var scrollPosition = $(`#card_image_view_${type}`).height() + $(`#card_image_view_${type}`).scrollTop();
+    if ((scrollHeight - scrollPosition) / scrollHeight < 0.1 && !data_key) {
+        console.log("You have reached the bottom!");
+        data_key = true;
+        data_key = true;
+        let search_key = $('#image_search_text').val();
+        $.ajax({
+            type:'POST',
+            url:image_search_all, // Replace with your own URL
+            data:{
+                search_key:search_key,
+                type:type,
+                '_token': csrfToken 
+            }, // Replace with your own data
+            success:function(res){
+                $(`#card_image_view_${type}_view`).append(res);
+                data_key = false;
+            }
+        });
+    }
+}
+
+// add button drag & drop
+function addButtonDrop(e, q_index, a_index)
+{
+    let div_id = `${q_index}_${a_index}_image_container`;
+    var image_input_name = `questions[q_${q_index}][answers][a_${a_index}][sub_images][${sub_images_index}]`;
+    var image_input_id = `sub_images_${q_index}_${a_index}_${sub_images_index}`;
+    e.preventDefault();
+    var data = e.dataTransfer.getData("drag_src");
 
     document.getElementById('_answer_images_' + a_index).insertAdjacentHTML('beforeend', `
         <input hidden name="${image_input_name}" type="file" 

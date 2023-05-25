@@ -285,7 +285,7 @@ echo '</script>';
                                                     <div id="_answer_images_{{$a_index}}">
                                                     </div>
                                                     <input id="_answer_images_{{$a_index}}_count" value="{{ count($answer->answer_images) }}" hidden>
-                                                    <div class="card-header d-flex justify-content-between p-2">
+                                                    <div class="card-header d-flex justify-content-between p-2" ondrop="addButtonDrop(event,{{$q_index}}, {{$a_index}})" ondragover="imgAddAllowDrop(event)">
                                                         <span>回答</span>
                                                         <div class="btn" style="padding: 0" onclick="addSubAnswerImage({{$q_index}}, {{$a_index}})">
                                                             <img src="{{ asset('/img/plus.png') }}" style="width: 25px; height: 25px;"/>
@@ -629,7 +629,7 @@ var plus_image_path = "{{ asset('/img/plus.png') }}";
                 </div>
                 <div id="search_result">
                     <div id="All" class="tabcontent active">
-                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_all">
+                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_all" onscroll="imageScroll('all')">
                             <div class="images-wrapper" id="card_image_view_all_view">
                                 @foreach ($photo as $key => $value)
                                     <img loading="lazy" src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
@@ -641,7 +641,7 @@ var plus_image_path = "{{ asset('/img/plus.png') }}";
                         </div>
                     </div>
                     <div id="Unsplash" class="tabcontent">
-                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_unsplash">
+                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_unsplash" onscroll="imageScroll('unsplash')">
                             <div class="images-wrapper" id="card_image_view_unsplash_view">
                                 @foreach ($photo as $key => $value)
                                     <img loading="lazy" src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
@@ -650,7 +650,7 @@ var plus_image_path = "{{ asset('/img/plus.png') }}";
                         </div> 
                     </div>
                     <div id="Pixabay" class="tabcontent">
-                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_pixabay">
+                        <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_pixabay" onscroll="imageScroll('pixabay')">
                             <div class="images-wrapper" id="card_image_view_pixabay_view">
                                 @foreach ($pixa_photo as $key => $value)
                                     <img loading="lazy" src="{{$value->imageURL}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
