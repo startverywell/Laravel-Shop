@@ -428,6 +428,7 @@ function imageScroll(type)
         data_key = true;
         data_key = true;
         let search_key = $('#image_search_text').val();
+        $('.loading').show();
         $.ajax({
             type:'POST',
             url:image_search_all, // Replace with your own URL
@@ -439,6 +440,8 @@ function imageScroll(type)
             success:function(res){
                 $(`#card_image_view_${type}_view`).append(res);
                 data_key = false;
+                console.log('----------end--------');
+                $('.loading').hide();
             }
         });
     }
@@ -477,4 +480,68 @@ function addButtonDrop(e, q_index, a_index)
             </button>
         </div>`;
     sub_images_index ++;
+}
+
+$('#image_search_close').click(function(){
+    $('#image_search_text').val('');
+});
+
+
+const input = document.getElementById('image_search_text');
+
+input.addEventListener('keydown', function(event) {
+    // check if the enter key was pressed (key code 13)
+    if (event.keyCode === 13) {
+        // do something when enter key is pressed
+        let search_key = $('#image_search_text').val();
+
+        $.ajax({
+            type:'POST',
+            url:image_search_url, // Replace with your own URL
+            data:{
+                search_key:search_key,
+                '_token': csrfToken 
+            }, // Replace with your own data
+            success:function(res){
+                $('#search_result').html(res);
+                document.getElementById('All').style.display = "block";
+            }
+        });
+    }
+});
+
+$('.image-container').click(function(e){
+    if($(this).attr('data-zoom') == 1){
+        $(this).removeClass('image-zoom-in');
+        $(this).removeClass('image-zoom-in1');
+        $(this).attr('data-zoom',0);
+        return true;
+    }
+    $('.image-container').each(function() {
+        $(this).removeClass('image-zoom-in');
+        $(this).removeClass('image-zoom-in1');
+    });
+    if($(this).attr('data-left') == 0)
+        $(this).addClass('image-zoom-in');
+    else 
+        $(this).addClass('image-zoom-in1');
+    $(this).attr('data-zoom',1);
+});
+
+function imageClick(e){
+    if($(e).attr('data-zoom') == 1){
+        $(e).removeClass('image-zoom-in');
+        $(e).removeClass('image-zoom-in1');
+        $(e).attr('data-zoom',0);
+        return true;
+    }
+    $('.image-container').each(function() {
+        $(this).removeClass('image-zoom-in');
+        $(this).removeClass('image-zoom-in1');
+    });
+    if($(e).attr('data-left') == 0)
+        $(e).addClass('image-zoom-in');
+    else 
+        $(e).addClass('image-zoom-in1');
+    $(e).attr('data-zoom',1);
 }

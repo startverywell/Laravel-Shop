@@ -355,6 +355,8 @@ function imgAddAllowDrop(ev) {
   
 function imgDrag(ev) {
     ev.dataTransfer.setData("drag_src", ev.target.src);
+    let download = ev.target.getAttribute("data-download");
+    $.get(download);
 }
   
 function imgDrop(ev) {

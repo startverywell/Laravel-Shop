@@ -425,7 +425,10 @@ $(document).bind('show-answer-list', function(event, data) {
     current_answers[data.id] = answers;
     if (type == 2) { // 画像
         if (data.file_url) {
-            a_area_html += '<div class="q-a-img"><div class="q-a-img-wrapper"><img src="' + domain_name + data.file_url + '"></div></div>';
+            if(data.file_url.indexOf("images.unsplash.com/") !== -1 || data.file_url.indexOf("pixabay.com/") !== -1)
+                a_area_html += '<div class="q-a-img"><div class="q-a-img-wrapper"><img src="' + data.file_url + '"></div></div>';
+            else
+                a_area_html += '<div class="q-a-img"><div class="q-a-img-wrapper"><img src="' + domain_name + data.file_url + '"></div></div>';
         }
     } else if (type == 3) { // 動画
         a_area_html += '<div class="q-a-video"><div class="q-a-video-wrapper">';
@@ -457,16 +460,28 @@ $(document).bind('show-answer-list', function(event, data) {
         } else {
             var index = 0;
             if (answers[i].answer_images && answers[i].answer_images.length >= 1) {
-                a_area_html += `<div class="q-a-item" id="${data.id}-${answers[i].id}"><div class="single-item"><div class="mod-slick-loop"><div class="q-a-item-img-wrapper"><div id="`+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + domain_name + modifyImageUrl(answers[i].file_url) + ')"></div></div>';
+                if(modifyImageUrl(answers[i].file_url).indexOf('images.unsplash.com/') !== -1 || modifyImageUrl(answers[i].file_url).indexOf('pixabay.com/') !== -1)
+                    a_area_html += `<div class="q-a-item" id="${data.id}-${answers[i].id}"><div class="single-item"><div class="mod-slick-loop"><div class="q-a-item-img-wrapper"><div id="`+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + modifyImageUrl(answers[i].file_url) + ')"></div></div>';
+                else
+                    a_area_html += `<div class="q-a-item" id="${data.id}-${answers[i].id}"><div class="single-item"><div class="mod-slick-loop"><div class="q-a-item-img-wrapper"><div id="`+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + domain_name + modifyImageUrl(answers[i].file_url) + ')"></div></div>';
+                
                 index++;
                 answers[i].answer_images.forEach(function(sub_image) {
-                    a_area_html += '<div class="q-a-item-img-wrapper"><div id="'+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + domain_name + modifyImageUrl(sub_image.sub_file_url) + ')"></div></div>';
+                    if(modifyImageUrl(sub_image.sub_file_url).indexOf('images.unsplash.com/') !== -1 || modifyImageUrl(sub_image.sub_file_url).indexOf('pixabay.com/') !== -1)
+                        a_area_html += '<div class="q-a-item-img-wrapper"><div id="'+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + modifyImageUrl(sub_image.sub_file_url) + ')"></div></div>';
+                    else
+                        a_area_html += '<div class="q-a-item-img-wrapper"><div id="'+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + domain_name + modifyImageUrl(sub_image.sub_file_url) + ')"></div></div>';
+                    
                     index++;
                 })
                 a_area_html += '</div></div><p class="fw600 fs16 product_name">' + newline(answers[i].title) + '</p>';
             }
             else {
-                a_area_html += `<div class="q-a-item" id="${data.id}-${answers[i].id}"><div class="q-a-item-img-wrapper"><div id="`+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + domain_name + modifyImageUrl(answers[i].file_url) + '"></div></div><p class="fw600 fs16 product_name">' + newline(answers[i].title) + '</p>';
+                if(modifyImageUrl(answers[i].file_url).indexOf('images.unsplash.com/') !== -1 || modifyImageUrl(answers[i].file_url).indexOf('pixabay.com/') !== -1)
+                    a_area_html += `<div class="q-a-item" id="${data.id}-${answers[i].id}"><div class="q-a-item-img-wrapper"><div id="`+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + modifyImageUrl(answers[i].file_url) + '"></div></div><p class="fw600 fs16 product_name">' + newline(answers[i].title) + '</p>';
+                else
+                    a_area_html += `<div class="q-a-item" id="${data.id}-${answers[i].id}"><div class="q-a-item-img-wrapper"><div id="`+ data.id + '-' + answers[i].id + '-' + index + '" class="q-a-item-img" style="background-image: url(' + domain_name + modifyImageUrl(answers[i].file_url) + '"></div></div><p class="fw600 fs16 product_name">' + newline(answers[i].title) + '</p>';
+                
             }
 
             // [answers[i].file_url].concat(answers[i].answer_images.map(sub_image => sub_image.sub_file_url))
@@ -508,19 +523,34 @@ $(document).bind('show-answer-list', function(event, data) {
             [answers[i].file_url].concat(answers[i].answer_images.map(sub_image => sub_image.sub_file_url))
             .forEach((url, index_) => {
                 var elem_id = `${data.id}-${answers[i].id}-${index_}`;
-                a_area_html += `
-                <script>    
-                    getMeta('${domain_name}${modifyImageUrl(url)}', (err, img) => {
-                        if (img) {
-                            if (img.naturalHeight > img.naturalWidth) {
-                                // $('#${elem_id}').css("background-size", "contain")
-                                $('#${elem_id}').css("background-size", "cover")
+                if(modifyImageUrl(url).indexOf('images.unsplash.com/') !== -1 || modifyImageUrl(url).indexOf('pixabay.com/') !== -1)
+                    a_area_html += `
+                    <script>    
+                        getMeta('${modifyImageUrl(url)}', (err, img) => {
+                            if (img) {
+                                if (img.naturalHeight > img.naturalWidth) {
+                                    // $('#${elem_id}').css("background-size", "contain")
+                                    $('#${elem_id}').css("background-size", "cover")
+                                }
+                                else $('#${elem_id}').css("background-size", "cover")
                             }
-                            else $('#${elem_id}').css("background-size", "cover")
-                        }
-                    });
-                </script>
-                `;
+                        });
+                    </script>
+                    `;
+                else
+                    a_area_html += `
+                    <script>    
+                        getMeta('${domain_name}${modifyImageUrl(url)}', (err, img) => {
+                            if (img) {
+                                if (img.naturalHeight > img.naturalWidth) {
+                                    // $('#${elem_id}').css("background-size", "contain")
+                                    $('#${elem_id}').css("background-size", "cover")
+                                }
+                                else $('#${elem_id}').css("background-size", "cover")
+                            }
+                        });
+                    </script>
+                    `;
             })
           
           
@@ -635,7 +665,11 @@ $(document).bind('show-answer-list', function(event, data) {
             if(cur_answers[sel_a_idx].value != '' && cur_answers[sel_a_idx].value != null && cur_answers[sel_a_idx].value != 0) {
                 ecFlg = 1;
                 var select_item = '<div>';
-                    select_item += '<div class="col select-modal-img"><img src="' + domain_name + cur_answers[sel_a_idx].file_url + '"></div>';
+                    if(modifyImageUrl(cur_answers[sel_a_idx].file_url).indexOf('images.unsplash.com/') !== -1 || modifyImageUrl(cur_answers[sel_a_idx].file_url).indexOf('pixabay.com/') !== -1)
+                        select_item += '<div class="col select-modal-img"><img src="' + cur_answers[sel_a_idx].file_url + '"></div>';
+                    else
+                        select_item += '<div class="col select-modal-img"><img src="' + domain_name + cur_answers[sel_a_idx].file_url + '"></div>';
+                    
                     select_item += '<div class="col text-center fw600">'+cur_answers[sel_a_idx].title+'</div>';
                     select_item += '<div class="col text-center fs14">¥'+threeDigitComma(cur_answers[sel_a_idx].value)+'(税込)</div>';
                         select_item += '<div class="col mt-2">';

@@ -364,7 +364,7 @@ class SurveyController extends Controller
                         $answerModel->save();
 
                         // unsplash img load
-                        if(strpos($answerItem['image'],'images.unsplash.com/')){
+                        if(isset($answerItem['image']) && (strpos($answerItem['image'],'images.unsplash.com/') || strpos($answerItem['image'],'pixabay.com/'))){
                             $answerModel->file_url = $answerItem['image'];
                             $answerModel->save();
                         } else {
@@ -392,7 +392,7 @@ class SurveyController extends Controller
                                 $answerImageModel->answer_id = $answerModel->id;
                                 $answerImageModel->sub_file_url = '_';
                                 // unsplash img load
-                                if(strpos($answer_sub_file,'images.unsplash.com/') && !isset($answer_sub_files[$sub_file_key])){
+                                if((strpos($answer_sub_file,'images.unsplash.com/') || strpos($answer_sub_file,'pixabay.com/')) && !isset($answer_sub_files[$sub_file_key])){
                                     $answerImageModel->sub_file_url = $answer_sub_file;
                                     $answerImageModel->save();
                                 } else
@@ -405,7 +405,7 @@ class SurveyController extends Controller
                                 $answerImageModel->save();
 
                                 // unsplash img load
-                                if(strpos($answer_sub_files_unsulash[$sub_file_key],'images.unsplash.com/')){
+                                if(strpos($answer_sub_files_unsulash[$sub_file_key],'images.unsplash.com/') || strpos($answer_sub_files_unsulash[$sub_file_key],'pixabay.com/')){
                                     $answerImageModel->sub_file_url = $answer_sub_files_unsulash[$sub_file_key];
                                     $answerImageModel->save();
                                 } else {
@@ -428,7 +428,7 @@ class SurveyController extends Controller
                                 $answerImageModel->answer_id = $answerModel->id;
                                 $answerImageModel->sub_file_url = '_';
                                 // unsplash img load
-                                if(strpos($answer_sub_file,'images.unsplash.com/')){
+                                if(strpos($answer_sub_file,'images.unsplash.com/') || strpos($answer_sub_file,'pixabay.com/')){
                                     $answerImageModel->sub_file_url = $answer_sub_file;
                                     $answerImageModel->save();
                                 } else

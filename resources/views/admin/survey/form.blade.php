@@ -612,49 +612,130 @@ var plus_image_path = "{{ asset('/img/plus.png') }}";
             </div>
         </div>
         <div id="mySidenav" class="sidenav">
-            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()" style="font-size:20px;">&times;</a>
             <div class="row splash-container1">
                 <!-- <form method="POST" action="{{ route('admin.survey.save') }}"> -->
                     <div class="input-group mt-2">
                         @csrf
-                        <input type="text" class="form-control" placeholder="Search"  id="image_search_text">
-                        <button class="btn btn-success" id="image_search_button">Search</button>
-                        <!-- <button class="btn btn-success" id="collasp">Hide</button> -->
+                        <button class="btn btn-default" id="image_search_button"><i class="fas fa-search"></i></button>
+                        <input type="text" class="form-control" placeholder="検索"  id="image_search_text">
+                        <button class="btn btn-default" id="image_search_close"><i class="fas fa-times-circle"></i></button>
                     </div>  
                 <!-- </form> -->
-                <div class="tab">
+                <div class="tab mb-2 mt-2">
                     <button class="tablinks" onclick="openCity(event, 'All')" id="image_select_all">All</button>
                     <button class="tablinks" onclick="openCity(event, 'Unsplash')">Unsplash</button>
                     <button class="tablinks" onclick="openCity(event, 'Pixabay')">Pixabay</button>
                 </div>
+                <div class="loading" style="display:none;"></div>
                 <div id="search_result">
                     <div id="All" class="tabcontent active">
                         <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_all" onscroll="imageScroll('all')">
                             <div class="images-wrapper" id="card_image_view_all_view">
-                                @foreach ($photo as $key => $value)
-                                    <img loading="lazy" src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
-                                @endforeach
-                                @foreach ($pixa_photo as $key => $value)
-                                    <img loading="lazy" src="{{$value->imageURL}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
-                                @endforeach
+                            <?php
+                                $div1 = "<div class='image-column'>";
+                                $div2 = "<div class='image-column'>";
+                                foreach ($photo as $key => $value){
+                                    $div1 .= '
+                                    <div class="image-container" data-zoom=0 data-left=0>
+                                        <img loading="lazy" src="'.$value->urls->small.'" alt="'.$value->alt_description.'" data-download="'.$value->links->download_location.'?client_id='.env('UNSPLASH_ACCESS_KEY').'" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                        <div class="image-overlay">
+                                            <a target="_blank" href="'.$value->links->html.'?utm_source=Formstylee&utm_medium=referral">'.$value->user->name.'</a>
+                                        </div>    
+                                    </div>
+                                    ';
+                                }
+                                foreach ($pixa_photo as $key => $value){
+                                    $div2 .= '
+                                    <div class="image-container" data-zoom=0 data-left=1>
+                                        <img loading="lazy" src="'.$value->imageURL.'" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                        <div class="image-overlay">
+                                            <a target="_blank" href="'.$value->pageURL.'">'.$value->user.'</a>
+                                        </div>    
+                                    </div>
+                                    ';
+                                }
+                                $div1 .= '</div>';
+                                $div2 .= '</div>';
+                                echo $div1;
+                                echo $div2;
+                            ?>
                             </div>
                         </div>
                     </div>
                     <div id="Unsplash" class="tabcontent">
                         <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_unsplash" onscroll="imageScroll('unsplash')">
                             <div class="images-wrapper" id="card_image_view_unsplash_view">
-                                @foreach ($photo as $key => $value)
-                                    <img loading="lazy" src="{{$value->urls->small}}" alt="{{$value->alt_description}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
-                                @endforeach
+                            <?php
+                                $div1 = "<div class='image-column'>";
+                                $div2 = "<div class='image-column'>";
+                                $flag = true;
+                                foreach ($photo as $key => $value){
+                                    if($flag){
+                                        $div1 .= '
+                                        <div class="image-container" data-zoom=0 data-left=0>
+                                            <img loading="lazy" src="'.$value->urls->small.'" alt="'.$value->alt_description.'" data-download="'.$value->links->download_location.'?client_id='.env('UNSPLASH_ACCESS_KEY').'" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                            <div class="image-overlay">
+                                                <a target="_blank" href="'.$value->links->html.'?utm_source=Formstylee&utm_medium=referral">'.$value->user->name.'</a>
+                                            </div>    
+                                        </div>
+                                        ';
+                                        $flag = false;
+                                    } else {
+                                        $div2 .= '
+                                        <div class="image-container" data-zoom=0 data-left=1>
+                                            <img loading="lazy" src="'.$value->urls->small.'" alt="'.$value->alt_description.'" data-download="'.$value->links->download_location.'?client_id='.env('UNSPLASH_ACCESS_KEY').'" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                            <div class="image-overlay">
+                                                <a target="_blank" href="'.$value->links->html.'?utm_source=Formstylee&utm_medium=referral">'.$value->user->name.'</a>
+                                            </div>    
+                                        </div>
+                                        ';
+                                        $flag = true;
+                                    }
+                                }
+                                $div1 .= '</div>';
+                                $div2 .= '</div>';
+                                echo $div1;
+                                echo $div2;
+                            ?>
                             </div>
                         </div> 
                     </div>
                     <div id="Pixabay" class="tabcontent">
                         <div class="card example-1 square scrollbar-dusty-grass square thin" id="card_image_view_pixabay" onscroll="imageScroll('pixabay')">
                             <div class="images-wrapper" id="card_image_view_pixabay_view">
-                                @foreach ($pixa_photo as $key => $value)
-                                    <img loading="lazy" src="{{$value->imageURL}}" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
-                                @endforeach
+                            <?php
+                                $div1 = "<div class='image-column'>";
+                                $div2 = "<div class='image-column'>";
+                                $flag = true;
+                                foreach ($pixa_photo as $key => $value){
+                                    if($flag){
+                                        $div1 .= '
+                                        <div class="image-container" data-zoom=0 data-left=0>
+                                            <img loading="lazy" src="'.$value->imageURL.'" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                            <div class="image-overlay">
+                                                <a href="'.$value->pageURL.'">'.$value->user.'</a>
+                                            </div>    
+                                        </div>
+                                        ';
+                                        $flag = false;
+                                    } else {
+                                        $div2 .= '
+                                        <div class="image-container" data-zoom=0 data-left=1>
+                                            <img loading="lazy" src="'.$value->imageURL.'" class="select_image"  draggable="true" ondragstart="imgDrag(event)">
+                                            <div class="image-overlay">
+                                                <a href="'.$value->pageURL.'">'.$value->user.'</a>
+                                            </div>    
+                                        </div>
+                                        ';
+                                        $flag = true;
+                                    }
+                                }
+                                $div1 .= '</div>';
+                                $div2 .= '</div>';
+                                echo $div1;
+                                echo $div2;
+                            ?>
                             </div>
                         </div>
                     </div>
