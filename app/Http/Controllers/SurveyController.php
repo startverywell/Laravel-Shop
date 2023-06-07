@@ -54,6 +54,7 @@ class SurveyController extends Controller
         $statuses = Status::all();
         $question_types = QuestionType::all();
         $answer_types = AnswerType::all();
+        
         $photo = Unsplash::randomPhoto()
                             // ->orientation('portrait')
                             ->term('nature')
@@ -90,11 +91,14 @@ class SurveyController extends Controller
         $answer_types = AnswerType::all();
         $question_list = Question::where('survey_id', $survey->id)->get();
         $answer_list = Answer::where('survey_id', $survey->id)->get();
+        $client = new Client();
+        
         $photo = Unsplash::randomPhoto()
-                            // ->orientation('portrait')
+                            ->orientation('landscape')
                             ->term('nature')
                             ->count(30)
                             ->toJson();
+                            // dd($photo);
         // $client = new Client();
         // $response = $client->request('GET', 'https://pixabay.com/api/', [
         //     'query' => [
