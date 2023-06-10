@@ -14,6 +14,7 @@ use App\Models\Widget;
 use App\Libraries\Pixabay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -369,8 +370,20 @@ class SurveyController extends Controller
 
                         // unsplash img load
                         if(isset($answerItem['image']) && (strpos($answerItem['image'],'images.unsplash.com/') || strpos($answerItem['image'],'pixabay.com/'))){
-                            $answerModel->file_url = $answerItem['image'];
-                            $answerModel->save();
+                            $client = new Client();
+                            $response = $client->get($answerItem['image']);
+                            $image = $response->getBody()->getContents();
+
+                            $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
+                            file_put_contents($tempFileName, $image);
+
+                            $file = new \Illuminate\Http\File($tempFileName);
+                            if (!Storage::disk('public')->exists('answers/' . $answerModel->id)) {
+                                Storage::disk('public')->makeDirectory('answers/' . $answerModel->id, 0755);
+                            }
+                            $filePath = Storage::putFile('answers/' . $answerModel->id, $file);
+                            $answerModel->file_url = 'uploads/'.$filePath;
+                            $answerModel->save();                            
                         } else {
                             if (isset($question_files[$key]['answers'][$a_key]['file_url'])) {
                                 $answer_file = $question_files[$key]['answers'][$a_key]['file_url'];
@@ -397,7 +410,19 @@ class SurveyController extends Controller
                                 $answerImageModel->sub_file_url = '_';
                                 // unsplash img load
                                 if((strpos($answer_sub_file,'images.unsplash.com/') || strpos($answer_sub_file,'pixabay.com/')) && !isset($answer_sub_files[$sub_file_key])){
-                                    $answerImageModel->sub_file_url = $answer_sub_file;
+                                    $client = new Client();
+                                    $response = $client->get($answer_sub_file);
+                                    $image = $response->getBody()->getContents();
+
+                                    $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
+                                    file_put_contents($tempFileName, $image);
+
+                                    $file = new \Illuminate\Http\File($tempFileName);
+                                    if (!Storage::disk('public')->exists('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id)) {
+                                        Storage::disk('public')->makeDirectory('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, 0755);
+                                    }
+                                    $filePath = Storage::putFile('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $file);
+                                    $answerImageModel->sub_file_url = 'uploads/'.$filePath;
                                     $answerImageModel->save();
                                 } else
                                     continue;
@@ -410,7 +435,19 @@ class SurveyController extends Controller
 
                                 // unsplash img load
                                 if(strpos($answer_sub_files_unsulash[$sub_file_key],'images.unsplash.com/') || strpos($answer_sub_files_unsulash[$sub_file_key],'pixabay.com/')){
-                                    $answerImageModel->sub_file_url = $answer_sub_files_unsulash[$sub_file_key];
+                                    $client = new Client();
+                                    $response = $client->get($answer_sub_files_unsulash[$sub_file_key]);
+                                    $image = $response->getBody()->getContents();
+
+                                    $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
+                                    file_put_contents($tempFileName, $image);
+
+                                    $file = new \Illuminate\Http\File($tempFileName);
+                                    if (!Storage::disk('public')->exists('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id)) {
+                                        Storage::disk('public')->makeDirectory('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, 0755);
+                                    }
+                                    $filePath = Storage::putFile('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $file);
+                                    $answerImageModel->sub_file_url = 'uploads/'.$filePath;
                                     $answerImageModel->save();
                                 } else {
                                 
@@ -433,7 +470,19 @@ class SurveyController extends Controller
                                 $answerImageModel->sub_file_url = '_';
                                 // unsplash img load
                                 if(strpos($answer_sub_file,'images.unsplash.com/') || strpos($answer_sub_file,'pixabay.com/')){
-                                    $answerImageModel->sub_file_url = $answer_sub_file;
+                                    $client = new Client();
+                                    $response = $client->get($answer_sub_file);
+                                    $image = $response->getBody()->getContents();
+
+                                    $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
+                                    file_put_contents($tempFileName, $image);
+
+                                    $file = new \Illuminate\Http\File($tempFileName);
+                                    if (!Storage::disk('public')->exists('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id)) {
+                                        Storage::disk('public')->makeDirectory('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, 0755);
+                                    }
+                                    $filePath = Storage::putFile('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $file);
+                                    $answerImageModel->sub_file_url = 'uploads/'.$filePath;
                                     $answerImageModel->save();
                                 } else
                                     continue;
