@@ -11,24 +11,17 @@ use App\Models\AnswerImage;
 use App\Models\Status;
 use App\Models\Survey;
 use App\Models\Widget;
-use App\Libraries\Pixabay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use MarkSitko\LaravelUnsplash\Facades\Unsplash;
-use GuzzleHttp\Client;
 
 class SurveyController extends Controller
 {
-    private $pixabay;
-
     public function __construct()
     {
         $this->middleware('auth');
-        // $this->pixabay = $pixabay;
     }
 
     public function index(Request $request)
@@ -55,32 +48,12 @@ class SurveyController extends Controller
         $statuses = Status::all();
         $question_types = QuestionType::all();
         $answer_types = AnswerType::all();
-        
-        $photo = Unsplash::randomPhoto()
-                            // ->orientation('portrait')
-                            ->term('nature')
-                            ->count(30)
-                            ->toJson();
-        // $client = new Client();
-        // $response = $client->request('GET', 'https://pixabay.com/api/', [
-        //     'query' => [
-        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
-        //         'q' => 'nature',
-        //         'per_page' => 30
-        //     ],
-        // ]);
-
-        // $body = $response->getBody();
-        // $pixa_photo = json_decode($body->getContents());
         return view('admin/survey/form',
             [
                 'survey' => $survey,
                 'statuses' =>$statuses,
                 'question_types' =>$question_types,
-                'answer_types' =>$answer_types,
-                'photo' => $photo,
-                'pixa_photo' => []
-                // 'pixa_photo' => $pixa_photo->hits
+                'answer_types' =>$answer_types
             ]);
     }
 
@@ -92,25 +65,6 @@ class SurveyController extends Controller
         $answer_types = AnswerType::all();
         $question_list = Question::where('survey_id', $survey->id)->get();
         $answer_list = Answer::where('survey_id', $survey->id)->get();
-        $client = new Client();
-        
-        $photo = Unsplash::randomPhoto()
-                            ->orientation('landscape')
-                            ->term('nature')
-                            ->count(30)
-                            ->toJson();
-                            // dd($photo);
-        // $client = new Client();
-        // $response = $client->request('GET', 'https://pixabay.com/api/', [
-        //     'query' => [
-        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
-        //         'q' => 'nature',
-        //         'per_page' => 30
-        //     ],
-        // ]);
-
-        // $body = $response->getBody();
-        // $pixa_photo = json_decode($body->getContents());
         return view('admin/survey/form',
             [
                 'survey' => $survey,
@@ -119,65 +73,8 @@ class SurveyController extends Controller
                 'answer_types' =>$answer_types,
                 'questions' => $question_list,
                 'answers' => $answer_list,
-                'photo' => $photo,
-                'pixa_photo' => []
-                // 'pixa_photo' => $pixa_photo->hits
-            ]);
-    }
+		'photo' => [],
 
-    public function imageSearch(Request $request)
-    {
-        $photo = Unsplash::randomPhoto()
-                ->term($request->post('search_key'))
-                // ->color('black_and_white')
-                ->count(30)
-                ->toJson();    
-        // $client = new Client();
-        // $response = $client->request('GET', 'https://pixabay.com/api/', [
-        //     'query' => [
-        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
-        //         'q' => $request->post('search_key'),
-        //         'per_page' => 30
-        //     ],
-        // ]);
-
-        // $body = $response->getBody();
-        // $pixa_photo = json_decode($body->getContents()); 
-        return view('admin/survey/imageview',
-            [
-                'photo' => $photo,
-                'pixa_photo' => []
-                // 'pixa_photo' => $pixa_photo->hits
-            ]);
-    }
-
-    public function imageSearchAll(Request $request)
-    {
-        $type = $request->post('type');
-        $photo = Unsplash::randomPhoto()
-                ->term($request->post('search_key'))
-                // ->color('black_and_white')
-                ->count(30)
-                ->toJson();    
-        // $client = new Client();
-        // $response = $client->request('GET', 'https://pixabay.com/api/', [
-        //     'query' => [
-        //         'key' => '17536358-8449fef0d1b11ed2de3c3a9b6',
-        //         'q' => $request->post('search_key'),
-        //         'per_page' => 30
-        //     ],
-        // ]);
-
-        // $body = $response->getBody();
-        // $pixa_photo = json_decode($body->getContents()); 
-        if($type == 'all') $view = 'admin/survey/searchview';
-        else if($type == 'unsplash') $view = 'admin/survey/unsplash';
-        else if($type == 'pixabay') $view = 'admin/survey/pixabay';
-        return view($view,
-            [
-                'photo' => $photo,
-                'pixa_photo' => []
-                // 'pixa_photo' => $pixa_photo->hits
             ]);
     }
 
@@ -367,125 +264,38 @@ class SurveyController extends Controller
                         $answerModel->question_id = $question->id;
                         $answerModel->ord = $a_ord;
                         $answerModel->save();
-
-                        // unsplash img load
-                        if(isset($answerItem['image']) && (strpos($answerItem['image'],'images.unsplash.com/') || strpos($answerItem['image'],'pixabay.com/'))){
-                            $client = new Client();
-                            $response = $client->get($answerItem['image']);
-                            $image = $response->getBody()->getContents();
-
-                            $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
-                            file_put_contents($tempFileName, $image);
-
-                            $file = new \Illuminate\Http\File($tempFileName);
-                            if (!Storage::disk('public')->exists('answers/' . $answerModel->id)) {
-                                Storage::disk('public')->makeDirectory('answers/' . $answerModel->id, 0755);
-                            }
-                            $filePath = Storage::putFile('answers/' . $answerModel->id, $file);
-                            $answerModel->file_url = 'uploads/'.$filePath;
-                            $answerModel->save();                            
-                        } else {
-                            if (isset($question_files[$key]['answers'][$a_key]['file_url'])) {
-                                $answer_file = $question_files[$key]['answers'][$a_key]['file_url'];
-                                if ($answer_file != null) {
-                                    if (strtolower($answer_file->getClientOriginalExtension()) == 'png'
-                                        || strtolower($answer_file->getClientOriginalExtension()) == 'jpg'
-                                        || strtolower($answer_file->getClientOriginalExtension()) == 'gif'
-                                        || strtolower($answer_file->getClientOriginalExtension()) == 'jpeg'
-                                    ) {
-                                        $answer_file->move('uploads/answers/' . $answerModel->id, str_replace(' ', '_', $answer_file->getClientOriginalName()));
-                                        $answerModel->file_url = 'uploads/answers/' . $answerModel->id . '/' . str_replace(' ', '_', $answer_file->getClientOriginalName());
-                                        $answerModel->save();
-                                    }
+                        if (isset($question_files[$key]['answers'][$a_key]['file_url'])) {
+                            $answer_file = $question_files[$key]['answers'][$a_key]['file_url'];
+                            if ($answer_file != null) {
+                                if (strtolower($answer_file->getClientOriginalExtension()) == 'png'
+                                    || strtolower($answer_file->getClientOriginalExtension()) == 'jpg'
+                                    || strtolower($answer_file->getClientOriginalExtension()) == 'gif'
+                                    || strtolower($answer_file->getClientOriginalExtension()) == 'jpeg'
+                                ) {
+                                    $answer_file->move('uploads/answers/' . $answerModel->id, str_replace(' ', '_', $answer_file->getClientOriginalName()));
+                                    $answerModel->file_url = 'uploads/answers/' . $answerModel->id . '/' . str_replace(' ', '_', $answer_file->getClientOriginalName());
+                                    $answerModel->save();
                                 }
                             }
                         }
-                        
+
                         if (isset($question_files[$key]['answers'][$a_key]) and isset($question_files[$key]['answers'][$a_key]['sub_images'])) {
                             $answer_sub_files = $question_files[$key]['answers'][$a_key]['sub_images'];
-                            $answer_sub_files_unsulash = $answerItem['sub_images'];
-                            foreach ($answer_sub_files_unsulash as $sub_file_key => $answer_sub_file){
-                                $answerImageModel = new AnswerImage();
-                                $answerImageModel->answer_id = $answerModel->id;
-                                $answerImageModel->sub_file_url = '_';
-                                // unsplash img load
-                                if((strpos($answer_sub_file,'images.unsplash.com/') || strpos($answer_sub_file,'pixabay.com/')) && !isset($answer_sub_files[$sub_file_key])){
-                                    $client = new Client();
-                                    $response = $client->get($answer_sub_file);
-                                    $image = $response->getBody()->getContents();
-
-                                    $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
-                                    file_put_contents($tempFileName, $image);
-
-                                    $file = new \Illuminate\Http\File($tempFileName);
-                                    if (!Storage::disk('public')->exists('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id)) {
-                                        Storage::disk('public')->makeDirectory('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, 0755);
-                                    }
-                                    $filePath = Storage::putFile('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $file);
-                                    $answerImageModel->sub_file_url = 'uploads/'.$filePath;
-                                    $answerImageModel->save();
-                                } else
-                                    continue;
-                            }
                             foreach ($answer_sub_files as $sub_file_key => $answer_sub_file){
                                 $answerImageModel = new AnswerImage();
                                 $answerImageModel->answer_id = $answerModel->id;
                                 $answerImageModel->sub_file_url = '_';
                                 $answerImageModel->save();
-
-                                // unsplash img load
-                                if(strpos($answer_sub_files_unsulash[$sub_file_key],'images.unsplash.com/') || strpos($answer_sub_files_unsulash[$sub_file_key],'pixabay.com/')){
-                                    $client = new Client();
-                                    $response = $client->get($answer_sub_files_unsulash[$sub_file_key]);
-                                    $image = $response->getBody()->getContents();
-
-                                    $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
-                                    file_put_contents($tempFileName, $image);
-
-                                    $file = new \Illuminate\Http\File($tempFileName);
-                                    if (!Storage::disk('public')->exists('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id)) {
-                                        Storage::disk('public')->makeDirectory('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, 0755);
-                                    }
-                                    $filePath = Storage::putFile('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $file);
-                                    $answerImageModel->sub_file_url = 'uploads/'.$filePath;
-                                    $answerImageModel->save();
-                                } else {
                                 
-                                    if (strtolower($answer_sub_file->getClientOriginalExtension()) == 'png'
-                                        || strtolower($answer_sub_file->getClientOriginalExtension()) == 'jpg'
-                                        || strtolower($answer_sub_file->getClientOriginalExtension()) == 'gif'
-                                        || strtolower($answer_sub_file->getClientOriginalExtension()) == 'jpeg'
-                                    ) {
-                                        $answer_sub_file->move('uploads/answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $sub_file_key . str_replace(' ', '_', $answer_sub_file->getClientOriginalName()));
-                                        $answerImageModel->sub_file_url = 'uploads/answers/sub_images/' . $answerModel->id . "_" . $answerImageModel->id . '/' . $sub_file_key . str_replace(' ', '_', $answer_sub_file->getClientOriginalName());
-                                        $answerImageModel->save();
-                                    }
-                                }
-                            }
-                        } elseif (isset($answerItem['sub_images'])){
-                            $answer_sub_files_unsulash = $answerItem['sub_images'];
-                            foreach ($answer_sub_files_unsulash as $sub_file_key => $answer_sub_file){
-                                $answerImageModel = new AnswerImage();
-                                $answerImageModel->answer_id = $answerModel->id;
-                                $answerImageModel->sub_file_url = '_';
-                                // unsplash img load
-                                if(strpos($answer_sub_file,'images.unsplash.com/') || strpos($answer_sub_file,'pixabay.com/')){
-                                    $client = new Client();
-                                    $response = $client->get($answer_sub_file);
-                                    $image = $response->getBody()->getContents();
-
-                                    $tempFileName = tempnam(sys_get_temp_dir(), 'image_');
-                                    file_put_contents($tempFileName, $image);
-
-                                    $file = new \Illuminate\Http\File($tempFileName);
-                                    if (!Storage::disk('public')->exists('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id)) {
-                                        Storage::disk('public')->makeDirectory('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, 0755);
-                                    }
-                                    $filePath = Storage::putFile('answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $file);
-                                    $answerImageModel->sub_file_url = 'uploads/'.$filePath;
+                                if (strtolower($answer_sub_file->getClientOriginalExtension()) == 'png'
+                                    || strtolower($answer_sub_file->getClientOriginalExtension()) == 'jpg'
+                                    || strtolower($answer_sub_file->getClientOriginalExtension()) == 'gif'
+                                    || strtolower($answer_sub_file->getClientOriginalExtension()) == 'jpeg'
+                                ) {
+                                    $answer_sub_file->move('uploads/answers/sub_images/' .  $answerModel->id . "_" . $answerImageModel->id, $sub_file_key . str_replace(' ', '_', $answer_sub_file->getClientOriginalName()));
+                                    $answerImageModel->sub_file_url = 'uploads/answers/sub_images/' . $answerModel->id . "_" . $answerImageModel->id . '/' . $sub_file_key . str_replace(' ', '_', $answer_sub_file->getClientOriginalName());
                                     $answerImageModel->save();
-                                } else
-                                    continue;
+                                }
                             }
                         }
                         $answer_ids[] = $answerModel->id;
